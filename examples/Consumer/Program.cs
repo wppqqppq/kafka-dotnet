@@ -56,10 +56,10 @@ namespace Confluent.Kafka.Examples.ConsumerExample
             // will be used automatically (where available). The default deserializer for string
             // is UTF8. The default deserializer for Ignore returns null for all input data
             // (including non-null data).
-            using (var consumer = new ConsumerBuilder<Ignore, string>(config)
+            using (var consumer = new ConsumerBuilder<string, string>(config)
                 // Note: All handlers are called on the main .Consume thread.
                 .SetErrorHandler((_, e) => Console.WriteLine($"Error: {e.Reason}"))
-                .SetStatisticsHandler((_, json) => Console.WriteLine($"Statistics: {json}"))
+                //.SetStatisticsHandler((_, json) => Console.WriteLine($"Statistics: {json}"))
                 .SetPartitionsAssignedHandler((c, partitions) =>
                 {
                     Console.WriteLine($"Assigned partitions: [{string.Join(", ", partitions)}]");
@@ -92,7 +92,8 @@ namespace Confluent.Kafka.Examples.ConsumerExample
                                 continue;
                             }
 
-                            Console.WriteLine($"Received message at {consumeResult.TopicPartitionOffset}: {consumeResult.Value}");
+                            Console.WriteLine($"Received message at" +
+								$" {consumeResult.TopicPartitionOffset},{consumeResult.Timestamp.UnixTimestampMs}: K{consumeResult.Key},V{consumeResult.Value}");
 
                             if (consumeResult.Offset % commitPeriod == 0)
                             {

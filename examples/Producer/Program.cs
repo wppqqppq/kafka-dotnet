@@ -72,12 +72,16 @@ namespace Confluent.Kafka.Examples.ProducerExample
                         // IO exception is thrown when ConsoleCancelEventArgs.Cancel == true.
                         break;
                     }
-                    if (text == null)
-                    {
-                        // Console returned null before 
-                        // the CancelKeyPress was treated
-                        break;
-                    }
+					if( text == null ) {
+						// Console returned null before 
+						// the CancelKeyPress was treated
+						break;
+					}
+					else if( text.StartsWith( "go" ) ) {
+						int cnt = int.Parse( text.Substring( 2 ) );
+						await Go( cnt );
+						continue;
+					}
 
                     string key = null;
                     string val = text;
@@ -106,9 +110,27 @@ namespace Confluent.Kafka.Examples.ProducerExample
                     }
                 }
 
-                // Since we are producing synchronously, at this point there will be no messages
-                // in-flight and no delivery reports waiting to be acknowledged, so there is no
-                // need to call producer.Flush before disposing the producer.
+				// Since we are producing synchronously, at this point there will be no messages
+				// in-flight and no delivery reports waiting to be acknowledged, so there is no
+				// need to call producer.Flush before disposing the producer.
+
+				async Task Go(int count )
+				{
+					try {
+						// Note: Awaiting the asynchronous produce request below prevents flow of execution
+						// from proceeding until the acknowledgement from the broker is received (at the 
+						// expense of low throughput).
+						Random random = new Random( 10 );
+						for( int i = 0; i < count; i++ ) {
+						var deliveryReport = await producer.ProduceAsync(
+							topicName, new Message<string, string> { Key = "Go" + random.Next().ToString(), Value = random.NextDouble().ToString(), Timestamp = new Timestamp( DateTimeOffset.Now.ToUnixTimeMilliseconds() - 100000000, TimestampType.CreateTime ) } );
+							Console.WriteLine( $"delivered to: {deliveryReport.TopicPartitionOffset}" );
+						}
+					}
+					catch( ProduceException<string, string> e ) {
+						Console.WriteLine( $"failed to deliver message: {e.Message} [{e.Error.Code}]" );
+					}
+				}
             }
         }
     }
