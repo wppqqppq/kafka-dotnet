@@ -12,7 +12,7 @@
     <!-- nuget package reference: <PackageReference Include="Confluent.Kafka" Version="1.0.0-RC6" /> -->
     <ProjectReference Include="../../src/Confluent.Kafka/Confluent.Kafka.csproj" />
     <PackageReference Include="Grpc.Tools" Version="1.16.0" />
-    <PackageReference Include="Google.Protobuf" Version="3.6.1" />
+    <PackageReference Include="Google.Protobuf" Version="3.15.0" />
   </ItemGroup>
 
 </Project>
